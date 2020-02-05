@@ -1,5 +1,6 @@
-#lang racket
+#lang racket/base
 (require web-server/servlet
+         racket/contract
          "model.rkt")
 (provide/contract (start (request? . -> . response?))) 
 
