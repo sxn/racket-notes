@@ -8,7 +8,7 @@
 ; and post is a (post title body comments)
 ; where title is a string, body is a string,
 ; and comments is a (listof string)
-(struct post (title body comments) #:mutable)
+(struct post (title body comments) #:mutable #:prefab)
  
 ; initialize-blog! : path? -> blog
 ; Reads a blog from a path, if not present, returns default

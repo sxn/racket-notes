@@ -13,7 +13,7 @@
                 "blog.db"))
    request))
 
-; render-blog-page: request -> doesn't return
+; render-blog-page: blog request -> doesn't return
 ; Produces an HTML page of the content of the
 ; blog.
 (define (render-blog-page a-blog request)
