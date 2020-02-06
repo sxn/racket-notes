@@ -1,59 +1,84 @@
 #lang racket/base
-(require racket/list)
+(require racket/list db)
 
-; A blog is a (blog home posts)
+
+; A blog is a (blog db)
 ; where home is a string, posts is a (listof post)
-(struct blog (home posts) #:mutable #:prefab)
+(struct blog (db))
 
 ; and post is a (post title body comments)
 ; where title is a string, body is a string,
 ; and comments is a (listof string)
-(struct post (title body comments) #:mutable #:prefab)
+(struct post (blog id))
  
 ; initialize-blog! : path? -> blog
 ; Reads a blog from a path, if not present, returns default
 (define (initialize-blog! home)
-  (define (log-missing-exn-handler exn)
-    (blog
-     (path->string home)
-     (list (post "First Post"
-                 "This is my first post"
-                 (list "First comment!"))
-           (post "Second Post"
-                 "This is another post"
-                 (list)))))
-  (define the-blog
-    (with-handlers ([exn? log-missing-exn-handler])
-      (with-input-from-file home read)))
-  (set-blog-home! the-blog (path->string home))
-  the-blog)
+  (define db (sqlite3-connect #:database home #:mode 'create))
+  (define the-blog (blog db))
+  (unless (table-exists? db "posts")
+    (query-exec db
+      (string-append
+        "create table posts "
+        "(id integer primary key, title text, body text)"))
+      (blog-insert-post! the-blog "First Post!" "this is my first post!")
+      (blog-insert-post! the-blog "Second Post!" "this is my second post!"))
+  (unless (table-exists? db "comments")
+    (query-exec db
+        "create table comments (pid integer, content text)")
+    (post-insert-comment! the-blog (first (blog-posts the-blog)) "First!!!11")))
 
-; persist-blog! : blog -> void
-; Persists the contents of the blog to its home
-(define (persist-blog! a-blog)
-  (define (write-to-blog)
-    (write a-blog))
-  (with-output-to-file (blog-home a-blog)
-    write-to-blog
-    #:exists 'replace))
- 
-; blog-insert-post!: blog string string -> void
-; Consumes a blog and a two strings, adds the post created from the two strings
-; at the top of the blog.
+; blog-posts : blog -> (listof post?)
+; Queries for the post ids
+(define (blog-posts a-blog)
+  (define (id->post an-id)
+    (post a-blog an-id))
+  (map id->post
+    (query-list
+      (blog-db a-blog)
+      "select id from posts")))
+
+; post-title : post -> string?
+; Queries the DB for the title of a post
+(define (post-title a-post)
+  (query-value
+    (blog-db (post-blog a-post))
+    "select title from posts where id = ?"
+    (post-id a-post)))
+
+; post-body : post -> string?
+; Queries the DB for the body of a post
+(define (post-body a-post)
+  (query-value
+    (blog-db (post-blog a-post))
+    "select body from posts where id = ?"
+    (post-id a-post)))
+
+; post-comments : post -> (listof string?)
+; Queries the DB for all of a post's comments
+(define (post-comments a-post)
+  (query-list
+    (blog-db (post-blog a-post))
+    "select content from comments where pid = ?"
+    (post-id a-post)))
+
+; blog-insert-post!: blog? string? string? -> void
+; Consumes a blog and a two strings, creates a post from the two strings and adds it to the top
+; of the blog.
 (define (blog-insert-post! a-blog title body)
-  (set-blog-posts!
-    a-blog
-    (cons (post title body empty) (blog-posts a-blog)))
-  (persist-blog! a-blog))
+  (query-exec
+    (blog-db a-blog)
+    "insert into posts (title, body) values (?, ?)"
+    title body))
  
-; post-insert-comment!: blog post string -> void
+; post-insert-comment!: blog? post? string? -> void
 ; Consumes a blog, a post and a comment string. As a side-efect, 
 ; adds the comment to the bottom of the post's list of comments.
 (define (post-insert-comment! a-blog a-post a-comment)
-  (set-post-comments!
-   a-post
-   (append (post-comments a-post) (list a-comment)))
-  (persist-blog! a-blog))
+  (query-exec
+    (blog-db a-blog)
+    "insert into comments (pid, content) values (?, ?)"
+    (post-id a-post) a-comment))
 
 (provide blog? blog-posts
          post? post-title post-body post-comments

@@ -1,6 +1,8 @@
 #lang racket/base
-(require web-server/servlet
-         racket/contract
+
+(require racket/contract
+         web-server/servlet
+         web-server/formlets
          "model.rkt")
 (provide/contract (start (request? . -> . response?))) 
 
@@ -11,8 +13,20 @@
   (render-blog-page
    (initialize-blog!
     (build-path (current-directory)
-                "blog.db"))
+                "blog.sqlite3"))
    request))
+
+; new-post-formlet : formlet (values string? string?)
+; A formlet for requesting a title and body of a post
+(define new-post-formlet
+  (formlet
+    ; #%# introduces a [list of X-expressions](https://docs.racket-lang.org/web-server/formlets.html#%28form._%28%28lib._web-server%2Fformlets%2Fsyntax..rkt%29._~23~25~23%29%29)
+    (#%# ,{=> input-string title}
+         ,{=> input-string body})
+    ; As `input-string` is a formlet that renders a text input, the above is equivalent to:
+    ; (list '(input ([type "text"] [name "input_0"]))
+    ;       '(input ([type "text"] [name "input_1"])))
+    (values title body)))
 
 ; render-blog-page: blog request -> doesn't return
 ; Produces an HTML page of the content of the
@@ -27,18 +41,20 @@
              ,(render-posts a-blog embed/url)
              (form ((action
                      ,(embed/url insert-post-handler)))
-                   (input ((name "title")))
-                   (input ((name "body")))
+                   ,@(formlet-display new-post-formlet)
                    (input ((type "submit"))))))))
  
   (define (insert-post-handler request)
-    (define bindings (request-bindings request))
-    (blog-insert-post!
-     a-blog
-     (extract-binding/single 'title bindings)
-     (extract-binding/single 'body bindings))
+    (define-values (title body)
+      (formlet-process new-post-formlet request))
+    (blog-insert-post! a-blog title body)
     (render-blog-page a-blog (redirect/get)))
   (send/suspend/dispatch response-generator))
+
+; new-comment-formlet : formlet string
+; A formlet for requesting a comment
+(define new-comment-formlet
+  input-string)
  
 ; render-post-detail-page: post request -> doesn't return
 ; Consumes a blog and a post, and produces a detail page of the post.
@@ -57,7 +73,7 @@
                (post-comments a-post))
              (form ((action
                      ,(embed/url insert-comment-handler)))
-                   (input ((name "comment")))
+                   ,@(formlet-display new-comment-formlet)
                    (input ((type "submit"))))
              (a ((href ,(embed/url back-handler)))
                 "Back to the blog")))))
@@ -68,7 +84,7 @@
   (define (insert-comment-handler request)
     (render-confirm-add-comment-page
      a-blog
-     (parse-comment (request-bindings request))
+     (formlet-process new-comment-formlet request)
      a-post
      request))
  
