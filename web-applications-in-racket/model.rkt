@@ -37,7 +37,7 @@ the-blog)
   (map id->post
     (query-list
       (blog-db a-blog)
-      "select id from posts")))
+      "select id from posts order by id desc")))
 
 ; post-title : post -> string?
 ; Queries the DB for the title of a post
