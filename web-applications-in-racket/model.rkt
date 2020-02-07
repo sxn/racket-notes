@@ -26,7 +26,8 @@
   (unless (table-exists? db "comments")
     (query-exec db
         "create table comments (pid integer, content text)")
-    (post-insert-comment! the-blog (first (blog-posts the-blog)) "First!!!11")))
+    (post-insert-comment! the-blog (first (blog-posts the-blog)) "First!!!11"))
+the-blog)
 
 ; blog-posts : blog -> (listof post?)
 ; Queries for the post ids
