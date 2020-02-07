@@ -100,7 +100,8 @@
 (define (render-confirm-add-comment-page a-blog a-comment a-post request)
   (define (response-generator embed/url)
     (response/xexpr
-     `(html (head (title "Add a Comment"))
+     `(html (head (title "Add a Comment")
+                  (link ((rel "stylesheet") (href "/styles.css") (type "text/css"))))
             (body
              (h1 "Add a Comment")
              "The comment: " (div (p ,a-comment))
