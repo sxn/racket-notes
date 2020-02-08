@@ -4,7 +4,7 @@
          web-server/servlet
          web-server/formlets
          "model.rkt")
-(provide/contract (start (request? . -> . response?))) 
+(provide/contract (start (-> request? response?))) 
 
 ; start: request -> doesn't return
 ; Consumes a request and produces a page that displays
