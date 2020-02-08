@@ -26,6 +26,18 @@
     ; As `input-string` is a formlet that renders a text input, the above is equivalent to:
     ; (list '(input ([type "text"] [name "input_0"]))
     ;       '(input ([type "text"] [name "input_1"])))
+    ; Alternatively, we instead of using the `input-string` combinator, we could use the underlying
+    ; formlets:
+    ; (#%# ,(=> (to-string
+    ;         (required
+    ;          (text-input
+    ;           #:attributes '([class "form-text"]))))
+    ;        title)
+    ;      ,(=> (to-string
+    ;         (required
+    ;          (text-input
+    ;           #:attributes '([class "form-text"]))))
+    ;        body))
     (values title body)))
 
 ; render-blog-page: blog request -> doesn't return
