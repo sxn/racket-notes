@@ -19,8 +19,10 @@ raco test gilded-rose.rkt
 
 ## Running
 
+### CLI
+
 ```bash
-racket main.rkt
+racket cli/main.rkt
 ```
 
 This will execute a 31-day cycle and print the output to `stdout`.
@@ -62,6 +64,14 @@ It's unclear to me if the [TextTests](texttests) are wrong: the way `Conjured` i
 > “Conjured” items degrade in Quality twice as fast as normal items
 
 ![Screenshot diff](./diff.png)
+
+### Web
+
+```bash
+racket web/main.rkt
+```
+
+This will start a web-server listening on port `8000`, and launch the application in your default browser. It'll display a table containing your store's inventory, and a "next" button, which will update the current day.
 
 [gilded-rose]: https://github.com/emilybache/GildedRose-Refactoring-Kata
 [racket]: https://racket-lang.org/

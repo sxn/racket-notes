@@ -1,6 +1,7 @@
 #lang racket/base
 
 (require racket/contract
+         web-server/servlet-env
          web-server/servlet
          web-server/formlets
          "../core/models.rkt")
@@ -20,42 +21,50 @@
       `(html (head (title "Gilded Rose")
                    (link ((rel "stylesheet") (href "/styles.css") (type "text/css"))))
              (body 
-              ,(render-masthead)
-              ,(render-meta current-day)
+              ,(render-masthead embed/url the-items)
               ,(render-items the-items)))))
              
   (send/suspend/dispatch response-generator))
 
 ; render-header: -> xexpr
-(define (render-masthead)
+(define (render-masthead embed/url the-items)
   `(div ((class "masthead"))
-        (h1 ((class "site-title")) "Gilded Rose")))
+        (h1 ((class "site-title")) "Gilded Rose")
+            ,(render-meta embed/url current-day the-items)))
 
 ; render-meta: number -> xexpr
-(define (render-meta the-day)
+(define (render-meta embed/url the-day the-items)
+  (define (next-day-handler request)
+    (set! current-day (add1 current-day))
+    (render-store-page (update-quality the-items) request))
+
   `(div ((class "meta"))
-        (span ((class "current-day")) 
-              (span
-                ,(string-append "It is now day: "
-                               (number->string the-day))))))
+          (p ((class "current-day")) 
+                (span
+                  ,(string-append
+                    "It's day "
+                    (number->string the-day))))
+          (a ((href ,(embed/url next-day-handler))) "next")))
 
 ; render-items: (listof item) -> xexpr
 ; Consumes a list of items, produces an xexpr fragment.
 (define (render-items the-items)
-  `(div ((class "items"))
-        ,@(map render-item the-items)))
+  `(section ((class "store"))
+    (div ((class "table"))
+      (span ((class "cell")) "Name")
+      (span ((class "cell")) "Quality")
+      (span ((class "cell")) "Sell in")
+      ,@(apply append (map render-item the-items)))))
 
-; render-item: item -> xexpr
+; render-item: item -> (listof xexpr)
 ; Consumes an item, produces an xexpr fragment of the item.
 (define (render-item the-item)
-  `(div ((class "item"))
-    (h3 ,(item-name the-item))
-    (p ,(number->string (item-quality the-item)))
-    (p ,(number->string (item-sell-in the-item)))))
+  `((span ((class "item-name cell")) ,(item-name the-item))
+    (span ((class "cell")) ,(number->string (item-quality the-item)))
+    (span ((class "cell")) ,(number->string (item-sell-in the-item)))))
 
-(require web-server/servlet-env)
 (serve/servlet start
-  #:launch-browser? #f
+  #:launch-browser? #t
   #:quit? #f
   #:listen-ip #f
   #:port 8000
