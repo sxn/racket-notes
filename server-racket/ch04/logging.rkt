@@ -3,11 +3,13 @@
 (require gregor
          net/url-string
          racket/match
+         racket/path
          web-server/dispatch
          web-server/http/response-structs
          web-server/http/request-structs
          web-server/http/xexpr
-         web-server/servlet-env)
+         web-server/servlet-env
+         "../utils.rkt")
 
 (define messages
   (hasheq 200 "OK"
@@ -82,13 +84,22 @@
   
   (thread
     (λ ()
-      (let loop ()
-       (define val (sync lr))
-       (display val)
-      ;  (match val
-      ;   [(vector level message obj name)]
-      ;   [_ (void)])
-       (loop)))))
+      (define (write-log-error message output-port) 
+        (displayln message output-port)
+        (flush-output output-port))
+
+      (call-with-output-file (build-path root-folder "ch04" "error.log")
+        #:mode 'text
+        #:exists 'append
+        (λ (out)
+          (let loop ()
+            (define val (sync lr))
+            (match val
+              [(vector level message obj name) (write-log-error message out)]
+              [_ (void)])
+          (loop)))))))
+
+(monitor)
 
 (module+ main
   (serve/servlet
