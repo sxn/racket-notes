@@ -3,7 +3,6 @@
 (require racket/contract
          web-server/servlet-env
          web-server/servlet
-         web-server/formlets
          "../core/models.rkt")
 
 (provide/contract (start (-> request? response?)))
@@ -36,7 +35,7 @@
 (define (render-meta embed/url the-day the-items)
   (define (next-day-handler request)
     (set! current-day (add1 current-day))
-    (render-store-page (update-quality the-items) request))
+    (render-store-page (update-quality the-items) (redirect/get)))
 
   `(div ((class "meta"))
           (p ((class "current-day")) 
