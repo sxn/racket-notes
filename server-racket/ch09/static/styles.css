@@ -1,0 +1,16 @@
+html {
+  color: salmon;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 2rem;
+}
