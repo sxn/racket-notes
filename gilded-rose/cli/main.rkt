@@ -18,7 +18,7 @@
            (newline)
            (display "name, sell-in, quality")
            (newline)
-           (for-each (lambda (item)
+           (for-each (λ (item)
               (display (item-to-string item))
               (newline))
             the-items)
