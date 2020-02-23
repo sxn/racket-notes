@@ -31,7 +31,7 @@
   
   (send/suspend/dispatch response-generator))
 
-(serve/servlet (λ (req) (dispatcher req))
+(serve/servlet (lambda (req) (dispatcher req))
   #:launch-browser? #t
 
   #:server-root-path (build-path root-folder "ch06")

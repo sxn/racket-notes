@@ -60,7 +60,7 @@
   (define cookies (request-cookies req))
   (define theme-cookie
     (findf
-      (λ (c) (string=? "theme" (client-cookie-name c)))
+      (lambda (c) (string=? "theme" (client-cookie-name c)))
       cookies))
 
   (displayln (client-cookie-value theme-cookie))

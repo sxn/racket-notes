@@ -124,7 +124,7 @@
 ; update-quality : (listof item) -> (listof item)
 ; Updates the quality and sell-in value for a list of items.
 (define (update-quality items) 
-  (map (λ (the-item)
+  (map (lambda (the-item)
          (match the-item
            [(? legendary-item?) (update-legendary-item the-item)]
            [(? conjured-item?) (update-conjured-item the-item)]

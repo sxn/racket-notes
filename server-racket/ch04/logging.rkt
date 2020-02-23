@@ -83,7 +83,7 @@
   (define lr (make-log-receiver not-found-logger 'info))
   
   (thread
-    (λ ()
+    (lambda ()
       (define (write-log-error message output-port) 
         (displayln message output-port)
         (flush-output output-port))
@@ -91,7 +91,7 @@
       (call-with-output-file (build-path root-folder "ch04" "error.log")
         #:mode 'text
         #:exists 'append
-        (λ (out)
+        (lambda (out)
           (let loop ()
             (define val (sync lr))
             (match val
