@@ -1,0 +1,1 @@
+("7.6" racket ("078737f45c960bb286414ed852ca177ceb49f2a7" . "f503a24e1aaecca32ab59c122e78ee987251f0c7") (collects #"brainfuck" #"expander.rkt") (collects #"brainfuck" #"reader.rkt") (collects #"racket" #"runtime-config.rkt") (collects #"reader" #"lang" #"reader.rkt"))

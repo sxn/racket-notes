@@ -1,13 +1,13 @@
 #lang racket/base
 
-(require "parser.rkt"
-         brag/support)
+(require brag/support
+         "parser.rkt")
 
 (provide read-syntax)
 
 (define (read-syntax path port)
   (define parse-tree (parse path (make-tokenizer port)))
-  (define module-datum `(module bf-mod "expander.rkt"
+  (define module-datum `(module bf-mod brainfuck/expander
                           ,parse-tree))
   (datum->syntax #f module-datum))
 
