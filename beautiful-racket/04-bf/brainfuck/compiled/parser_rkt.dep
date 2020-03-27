@@ -1,1 +1,0 @@
-("7.6" racket ("011d5c4ac9168782499f192b2bf029b2ee2c2379" . "1f2265f6904f6b05b6ebe1d4716ce19e873f2301") (collects #"brag" #"codegen" #"expander.rkt") (collects #"brag" #"main.rkt") (collects #"racket" #"runtime-config.rkt"))
