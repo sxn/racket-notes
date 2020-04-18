@@ -6,7 +6,6 @@
     (list->string
      (list-update (string->list s) i char-upcase))))
 
-
 (module+ test
   (require rackunit
            rackunit/text-ui)
